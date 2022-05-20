@@ -1,6 +1,7 @@
 import { Client, Intents } from 'discord.js';
 import { config } from 'dotenv';
 import { generate } from 'short-uuid';
+import axios from 'axios';
 
 config();
 
@@ -21,6 +22,9 @@ async function start() {
   
   uuidNickname();
   setInterval(uuidNickname, 3600000);
+
+  nukecodeNickname();
+  setInterval(nukecodeNickname, 600000);
 }
   
 function uuidNickname() {
@@ -31,12 +35,46 @@ function uuidNickname() {
   const uuidMapJson = JSON.parse(uuidMap) as Record<string, string[]>;
 
   Object.keys(uuidMapJson).forEach(async guildId => {
-    const guild = await client.guilds.fetch(guildId);
-
-    uuidMapJson[guildId].forEach(async userId => {
-      const member = await guild.members.fetch(userId);
-
-      member.setNickname(generate());
-    });
+    try {
+      const guild = await client.guilds.fetch(guildId);
+  
+      uuidMapJson[guildId].forEach(async userId => {
+        const member = await guild.members.fetch(userId);
+  
+        member.setNickname(generate());
+      });
+    } catch (error) {
+      console.error(error);
+    }
   });
+}
+
+async function nukecodeNickname() {
+  const nukecodeMap = process.env.NUKECODE_MAP;
+
+  if (typeof nukecodeMap === 'undefined') throw 'Nukecode map not set in .env';
+
+  const nukecodeMapJson = JSON.parse(nukecodeMap) as Record<string, string[]>;
+
+  try {
+    const response = await axios.get('https://nhentai.net');
+
+    const code = Array.from((response.data as string).matchAll(new RegExp(/\/g\/\d+/g)))[5][0];
+
+    Object.keys(nukecodeMapJson).forEach(async guildId => {
+      try {
+        const guild = await client.guilds.fetch(guildId);
+    
+        nukecodeMapJson[guildId].forEach(async userId => {
+          const member = await guild.members.fetch(userId);
+    
+          member.setNickname(code);
+        });
+      } catch (error) {
+        console.error(error);
+      }
+    });
+  } catch (error) {
+    console.error(error);
+  }
 }
