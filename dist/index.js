@@ -32,7 +32,6 @@ function uuidNickname() {
     const uuidMap = process.env.UUID_MAP;
     if (typeof uuidMap === 'undefined')
         throw 'UUID map not set in .env';
-    console.log(uuidMap);
     const uuidMapJson = JSON.parse(uuidMap);
     Object.keys(uuidMapJson).forEach((guildId) => __awaiter(this, void 0, void 0, function* () {
         const guild = yield client.guilds.fetch(guildId);
