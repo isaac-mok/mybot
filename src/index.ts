@@ -68,7 +68,7 @@ async function nukecodeNickname() {
         nukecodeMapJson[guildId].forEach(async userId => {
           const member = await guild.members.fetch(userId);
     
-          member.setNickname(code);
+          member.setNickname(`[Unethical] ${code}`);
         });
       } catch (error) {
         console.error(error);

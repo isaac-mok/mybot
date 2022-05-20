@@ -58,17 +58,15 @@ function nukecodeNickname() {
         if (typeof nukecodeMap === 'undefined')
             throw 'Nukecode map not set in .env';
         const nukecodeMapJson = JSON.parse(nukecodeMap);
-        console.log(nukecodeMapJson);
         try {
             const response = yield axios_1.default.get('https://nhentai.net');
             const code = Array.from(response.data.matchAll(new RegExp(/\/g\/\d+/g)))[5][0];
-            console.log(code);
             Object.keys(nukecodeMapJson).forEach((guildId) => __awaiter(this, void 0, void 0, function* () {
                 try {
                     const guild = yield client.guilds.fetch(guildId);
                     nukecodeMapJson[guildId].forEach((userId) => __awaiter(this, void 0, void 0, function* () {
                         const member = yield guild.members.fetch(userId);
-                        member.setNickname(code);
+                        member.setNickname(`[Unethical] ${code}`);
                     }));
                 }
                 catch (error) {
