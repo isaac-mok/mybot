@@ -4,7 +4,8 @@
   "description": "Discord bot with miscellaneous functions.",
   "main": "dist/index.js",
   "scripts": {
-    "dev": "tsc",
+    "start": "npm run dev",
+    "dev": "tsc && node ./dist/index.js",
     "watch": "tsc --watch",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -23,5 +24,8 @@
     "discord.js": "^13.7.0",
     "dotenv": "^16.0.1",
     "short-uuid": "^4.2.0"
+  },
+  "engines": {
+    "node": "16.x"
   }
 }
