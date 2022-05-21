@@ -131,7 +131,7 @@ async function sensitiveTwitter(message: Message<boolean>) {
       .setAuthor({name: `${author.name} (${author.username})`, iconURL: author.profile_image_url, url: `https://twitter.com/${author.username}` })
       .setDescription(tweet.data?.text || '')
       .addFields(
-        { name:'Likes', value: tweet.data?.public_metrics?.like_count.toString() || '', inline: true},
+        { name:'Likes', value: tweet.data?.public_metrics?.like_count.toString() || '', inline: true },
         { name: 'Retweets', value: tweet.data?.public_metrics?.retweet_count.toString() || '', inline: true }
       );
 
