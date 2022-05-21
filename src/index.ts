@@ -6,13 +6,15 @@ import axios from 'axios';
 
 config();
 
-const client = new Client({ intents: [Intents.FLAGS.GUILDS] });
+const client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES] });
 
 client.on('ready', () => {
   console.log('Logged in.');
 });
 
-client.on('message', (message) => {
+client.on('messageCreate', (message) => {
+  if (message.author.bot) return;
+
   sensitiveTwitter(message);
 });
 
@@ -117,16 +119,21 @@ async function sensitiveTwitter(message: Message<boolean>) {
     const tweet = await twitterClient.tweets.findTweetById(tweetId, {
       expansions: ['author_id', 'attachments.media_keys'],
       "media.fields": ['url'],
+      "user.fields": ['profile_image_url'],
+      "tweet.fields": ['public_metrics'],
     });
 
     const author = tweet.includes?.users ? tweet.includes?.users[0] : {name: '', username: '', profile_image_url: ''};
     
     const messageEmbed = new MessageEmbed()
       .setColor('#1DA1F2')
-      .setTitle(`${author.name} (${author.username})`)
       .setURL(matchArr[0])
-      .setAuthor({name: author.name, iconURL: author.profile_image_url, url: `https://twitter.com/${author.username}` })
+      .setAuthor({name: `${author.name} (${author.username})`, iconURL: author.profile_image_url, url: `https://twitter.com/${author.username}` })
       .setDescription(tweet.data?.text || '')
+      .addFields(
+        { name:'Likes', value: tweet.data?.public_metrics?.like_count.toString() || '', inline: true},
+        { name: 'Retweets', value: tweet.data?.public_metrics?.retweet_count.toString() || '', inline: true }
+      );
 
     const photos = tweet.includes?.media?.filter(media => media.type === 'photo') as Photo[];
       

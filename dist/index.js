@@ -18,11 +18,13 @@ const dotenv_1 = require("dotenv");
 const short_uuid_1 = require("short-uuid");
 const axios_1 = __importDefault(require("axios"));
 (0, dotenv_1.config)();
-const client = new discord_js_1.Client({ intents: [discord_js_1.Intents.FLAGS.GUILDS] });
+const client = new discord_js_1.Client({ intents: [discord_js_1.Intents.FLAGS.GUILDS, discord_js_1.Intents.FLAGS.GUILD_MESSAGES] });
 client.on('ready', () => {
     console.log('Logged in.');
 });
-client.on('message', (message) => {
+client.on('messageCreate', (message) => {
+    if (message.author.bot)
+        return;
     sensitiveTwitter(message);
 });
 const token = process.env.DISCORD_TOKEN;
@@ -84,7 +86,7 @@ function nukecodeNickname() {
     });
 }
 function sensitiveTwitter(message) {
-    var _a, _b, _c, _d, _e;
+    var _a, _b, _c, _d, _e, _f, _g, _h, _j;
     return __awaiter(this, void 0, void 0, function* () {
         // Check channel validity
         const channel = message.channel;
@@ -112,15 +114,17 @@ function sensitiveTwitter(message) {
             const tweet = yield twitterClient.tweets.findTweetById(tweetId, {
                 expansions: ['author_id', 'attachments.media_keys'],
                 "media.fields": ['url'],
+                "user.fields": ['profile_image_url'],
+                "tweet.fields": ['public_metrics'],
             });
             const author = ((_a = tweet.includes) === null || _a === void 0 ? void 0 : _a.users) ? (_b = tweet.includes) === null || _b === void 0 ? void 0 : _b.users[0] : { name: '', username: '', profile_image_url: '' };
             const messageEmbed = new discord_js_1.MessageEmbed()
                 .setColor('#1DA1F2')
-                .setTitle(`${author.name} (${author.username})`)
                 .setURL(matchArr[0])
-                .setAuthor({ name: author.name, iconURL: author.profile_image_url, url: `https://twitter.com/${author.username}` })
-                .setDescription(((_c = tweet.data) === null || _c === void 0 ? void 0 : _c.text) || '');
-            const photos = (_e = (_d = tweet.includes) === null || _d === void 0 ? void 0 : _d.media) === null || _e === void 0 ? void 0 : _e.filter(media => media.type === 'photo');
+                .setAuthor({ name: `${author.name} (${author.username})`, iconURL: author.profile_image_url, url: `https://twitter.com/${author.username}` })
+                .setDescription(((_c = tweet.data) === null || _c === void 0 ? void 0 : _c.text) || '')
+                .addFields({ name: 'Likes', value: ((_e = (_d = tweet.data) === null || _d === void 0 ? void 0 : _d.public_metrics) === null || _e === void 0 ? void 0 : _e.like_count.toString()) || '', inline: true }, { name: 'Retweets', value: ((_g = (_f = tweet.data) === null || _f === void 0 ? void 0 : _f.public_metrics) === null || _g === void 0 ? void 0 : _g.retweet_count.toString()) || '', inline: true });
+            const photos = (_j = (_h = tweet.includes) === null || _h === void 0 ? void 0 : _h.media) === null || _j === void 0 ? void 0 : _j.filter(media => media.type === 'photo');
             if (typeof photos !== 'undefined' && photos.length > 0) {
                 messageEmbed.setImage(photos[0].url);
             }
