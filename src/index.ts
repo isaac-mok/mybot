@@ -64,9 +64,14 @@ async function nukecodeNickname() {
   const nukecodeMapJson = JSON.parse(nukecodeMap) as Record<string, string[]>;
 
   try {
-    const response = await axios.get('https://nhentai.net');
+    const response = await axios.get('https://nhentai.net/random');
+    
+    if (! /<a href="\/language\/english\/"/g.test(response.data as string)) {
+      setTimeout(nukecodeNickname, 3000);
+      return;
+    }
 
-    const code = Array.from((response.data as string).matchAll(new RegExp(/\/g\/\d+/g)))[5][0];
+    const code = response.request.path;
 
     Object.keys(nukecodeMapJson).forEach(async guildId => {
       try {

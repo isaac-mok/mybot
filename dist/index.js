@@ -65,8 +65,12 @@ function nukecodeNickname() {
             throw 'Nukecode map not set in .env';
         const nukecodeMapJson = JSON.parse(nukecodeMap);
         try {
-            const response = yield axios_1.default.get('https://nhentai.net');
-            const code = Array.from(response.data.matchAll(new RegExp(/\/g\/\d+/g)))[5][0];
+            const response = yield axios_1.default.get('https://nhentai.net/random');
+            if (!/<a href="\/language\/english\/"/g.test(response.data)) {
+                setTimeout(nukecodeNickname, 3000);
+                return;
+            }
+            const code = response.request.path;
             Object.keys(nukecodeMapJson).forEach((guildId) => __awaiter(this, void 0, void 0, function* () {
                 try {
                     const guild = yield client.guilds.fetch(guildId);
