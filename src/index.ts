@@ -56,7 +56,7 @@ function uuidNickname() {
   });
 }
 
-async function nukecodeNickname() {
+async function nukecodeNickname(code?: number) {
   const nukecodeMap = process.env.NUKECODE_MAP;
 
   if (typeof nukecodeMap === 'undefined') throw 'Nukecode map not set in .env';
@@ -64,14 +64,21 @@ async function nukecodeNickname() {
   const nukecodeMapJson = JSON.parse(nukecodeMap) as Record<string, string[]>;
 
   try {
-    const response = await axios.get('https://nhentai.net/random');
-    
-    if (! /<a href="\/language\/english\/"/g.test(response.data as string)) {
-      setTimeout(nukecodeNickname, 3000);
-      return;
+    if (typeof code === 'undefined') {
+      const rootResponse = await axios.get('https://nhentai.net');
+  
+      code = parseInt(Array.from((rootResponse.data as string).matchAll(new RegExp(/\/g\/\d+/g)))[5][0].substring(3));
     }
 
-    const code = response.request.path;
+    const response = await axios.get(`https://nhentai.net/g/${code}`)
+
+    code = parseInt(response.request.path.substring(3) as string);
+    
+    if (! /<a href="\/language\/english\/"/g.test(response.data as string)) {
+      code--;
+      setTimeout(() => nukecodeNickname(code), 3000);
+      return;
+    }
 
     Object.keys(nukecodeMapJson).forEach(async guildId => {
       try {

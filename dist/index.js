@@ -58,19 +58,24 @@ function uuidNickname() {
         }
     }));
 }
-function nukecodeNickname() {
+function nukecodeNickname(code) {
     return __awaiter(this, void 0, void 0, function* () {
         const nukecodeMap = process.env.NUKECODE_MAP;
         if (typeof nukecodeMap === 'undefined')
             throw 'Nukecode map not set in .env';
         const nukecodeMapJson = JSON.parse(nukecodeMap);
         try {
-            const response = yield axios_1.default.get('https://nhentai.net/random');
+            if (typeof code === 'undefined') {
+                const rootResponse = yield axios_1.default.get('https://nhentai.net');
+                code = parseInt(Array.from(rootResponse.data.matchAll(new RegExp(/\/g\/\d+/g)))[5][0].substring(3));
+            }
+            const response = yield axios_1.default.get(`https://nhentai.net/g/${code}`);
+            code = parseInt(response.request.path.substring(3));
             if (!/<a href="\/language\/english\/"/g.test(response.data)) {
-                setTimeout(nukecodeNickname, 3000);
+                code--;
+                setTimeout(() => nukecodeNickname(code), 3000);
                 return;
             }
-            const code = response.request.path;
             Object.keys(nukecodeMapJson).forEach((guildId) => __awaiter(this, void 0, void 0, function* () {
                 try {
                     const guild = yield client.guilds.fetch(guildId);
