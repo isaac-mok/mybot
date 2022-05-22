@@ -95,7 +95,7 @@ function nukecodeNickname(code) {
     });
 }
 function sensitiveTwitter(message) {
-    var _a, _b, _c, _d, _e, _f, _g, _h, _j;
+    var _a, _b, _c, _d, _e, _f, _g, _h, _j, _k;
     return __awaiter(this, void 0, void 0, function* () {
         // Check channel validity
         const channel = message.channel;
@@ -111,9 +111,6 @@ function sensitiveTwitter(message) {
         if (tweetIdMatchArr === null)
             return;
         const tweetId = tweetIdMatchArr[0].substring(7);
-        // Check if has embed to know if tweet is sensitive
-        if (message.embeds.length !== 0)
-            return;
         // Initiate twitter client and lookup
         const twitterToken = process.env.TWITTER_TOKEN;
         if (typeof twitterToken === 'undefined')
@@ -124,16 +121,18 @@ function sensitiveTwitter(message) {
                 expansions: ['author_id', 'attachments.media_keys'],
                 "media.fields": ['url'],
                 "user.fields": ['profile_image_url'],
-                "tweet.fields": ['public_metrics'],
+                "tweet.fields": ['public_metrics', 'possibly_sensitive'],
             });
-            const author = ((_a = tweet.includes) === null || _a === void 0 ? void 0 : _a.users) ? (_b = tweet.includes) === null || _b === void 0 ? void 0 : _b.users[0] : { name: '', username: '', profile_image_url: '' };
+            if (!((_a = tweet.data) === null || _a === void 0 ? void 0 : _a.possibly_sensitive))
+                return;
+            const author = ((_b = tweet.includes) === null || _b === void 0 ? void 0 : _b.users) ? (_c = tweet.includes) === null || _c === void 0 ? void 0 : _c.users[0] : { name: '', username: '', profile_image_url: '' };
             const messageEmbed = new discord_js_1.MessageEmbed()
                 .setColor('#1DA1F2')
                 .setURL(matchArr[0])
                 .setAuthor({ name: `${author.name} (${author.username})`, iconURL: author.profile_image_url, url: `https://twitter.com/${author.username}` })
-                .setDescription(((_c = tweet.data) === null || _c === void 0 ? void 0 : _c.text) || '')
-                .addFields({ name: 'Likes', value: ((_e = (_d = tweet.data) === null || _d === void 0 ? void 0 : _d.public_metrics) === null || _e === void 0 ? void 0 : _e.like_count.toString()) || '', inline: true }, { name: 'Retweets', value: ((_g = (_f = tweet.data) === null || _f === void 0 ? void 0 : _f.public_metrics) === null || _g === void 0 ? void 0 : _g.retweet_count.toString()) || '', inline: true });
-            const photos = (_j = (_h = tweet.includes) === null || _h === void 0 ? void 0 : _h.media) === null || _j === void 0 ? void 0 : _j.filter(media => media.type === 'photo');
+                .setDescription(((_d = tweet.data) === null || _d === void 0 ? void 0 : _d.text) || '')
+                .addFields({ name: 'Likes', value: ((_f = (_e = tweet.data) === null || _e === void 0 ? void 0 : _e.public_metrics) === null || _f === void 0 ? void 0 : _f.like_count.toString()) || '', inline: true }, { name: 'Retweets', value: ((_h = (_g = tweet.data) === null || _g === void 0 ? void 0 : _g.public_metrics) === null || _h === void 0 ? void 0 : _h.retweet_count.toString()) || '', inline: true });
+            const photos = (_k = (_j = tweet.includes) === null || _j === void 0 ? void 0 : _j.media) === null || _k === void 0 ? void 0 : _k.filter(media => media.type === 'photo');
             if (typeof photos !== 'undefined' && photos.length > 0) {
                 messageEmbed.setImage(photos[0].url);
             }

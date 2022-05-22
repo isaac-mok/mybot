@@ -117,9 +117,6 @@ async function sensitiveTwitter(message: Message<boolean>) {
 
   const tweetId = tweetIdMatchArr[0].substring(7);
 
-  // Check if has embed to know if tweet is sensitive
-  if (message.embeds.length !== 0) return;
-
   // Initiate twitter client and lookup
   const twitterToken = process.env.TWITTER_TOKEN;
 
@@ -132,8 +129,10 @@ async function sensitiveTwitter(message: Message<boolean>) {
       expansions: ['author_id', 'attachments.media_keys'],
       "media.fields": ['url'],
       "user.fields": ['profile_image_url'],
-      "tweet.fields": ['public_metrics'],
+      "tweet.fields": ['public_metrics', 'possibly_sensitive'],
     });
+
+    if (! tweet.data?.possibly_sensitive) return;
 
     const author = tweet.includes?.users ? tweet.includes?.users[0] : {name: '', username: '', profile_image_url: ''};
     
