@@ -27,11 +27,11 @@ start();
 async function start() {
   await client.login(token);
   
-  uuidNickname();
-  setInterval(uuidNickname, 3600000);
+  // uuidNickname();
+  // setInterval(uuidNickname, 3600000);
 
-  nukecodeNickname();
-  setInterval(nukecodeNickname, 600000);
+  // nukecodeNickname();
+  // setInterval(nukecodeNickname, 600000);
 }
   
 function uuidNickname() {
@@ -117,49 +117,57 @@ async function sensitiveTwitter(message: Message<boolean>) {
 
   const tweetId = tweetIdMatchArr[0].substring(7);
 
-  // Initiate twitter client and lookup
-  const twitterToken = process.env.TWITTER_TOKEN;
+  // Wait and see if Discord embeds or not. Because Twitter API possibly_sensitive
+  // is different from Tweet age restricted.
+  setTimeout(async () => {
+    if ((await message.fetch()).embeds.length === 0) retrieveAndEmbed();
+  }, 5000);
 
-  if (typeof twitterToken === 'undefined') throw 'Twitter token not set in .env';
+  async function retrieveAndEmbed() {
+    // Initiate twitter client and lookup
+    const twitterToken = process.env.TWITTER_TOKEN;
 
-  try {
-    const twitterClient = new TwitterClient(twitterToken);
+    if (typeof twitterToken === 'undefined') throw 'Twitter token not set in .env';
 
-    const tweet = await twitterClient.tweets.findTweetById(tweetId, {
-      expansions: ['author_id', 'attachments.media_keys'],
-      "media.fields": ['url'],
-      "user.fields": ['profile_image_url'],
-      "tweet.fields": ['public_metrics', 'possibly_sensitive'],
-    });
+    try {
+      const twitterClient = new TwitterClient(twitterToken);
 
-    if (! tweet.data?.possibly_sensitive) return;
+      const tweet = await twitterClient.tweets.findTweetById(tweetId, {
+        expansions: ['author_id', 'attachments.media_keys'],
+        "media.fields": ['url'],
+        "user.fields": ['profile_image_url'],
+        "tweet.fields": ['public_metrics', 'possibly_sensitive'],
+      });
 
-    const author = tweet.includes?.users ? tweet.includes?.users[0] : {name: '', username: '', profile_image_url: ''};
-    
-    const messageEmbed = new MessageEmbed()
-      .setColor('#1DA1F2')
-      .setURL(matchArr[0])
-      .setAuthor({name: `${author.name} (${author.username})`, iconURL: author.profile_image_url, url: `https://twitter.com/${author.username}` })
-      .setDescription(tweet.data?.text || '')
-      .addFields(
-        { name:'Likes', value: tweet.data?.public_metrics?.like_count.toString() || '', inline: true },
-        { name: 'Retweets', value: tweet.data?.public_metrics?.retweet_count.toString() || '', inline: true }
-      );
+      if (! tweet.data?.possibly_sensitive) return;
 
-    const photos = tweet.includes?.media?.filter(media => media.type === 'photo') as Photo[];
+      const author = tweet.includes?.users ? tweet.includes?.users[0] : {name: '', username: '', profile_image_url: ''};
       
-    if (typeof photos !== 'undefined' && photos.length > 0) {
-      messageEmbed.setImage(photos[0].url);
-    }
+      const messageEmbed = new MessageEmbed()
+        .setColor('#1DA1F2')
+        .setURL((matchArr as RegExpMatchArray)[0])
+        .setAuthor({name: `${author.name} (${author.username})`, iconURL: author.profile_image_url, url: `https://twitter.com/${author.username}` })
+        .setDescription(tweet.data?.text || '')
+        .addFields(
+          { name:'Likes', value: tweet.data?.public_metrics?.like_count.toString() || '', inline: true },
+          { name: 'Retweets', value: tweet.data?.public_metrics?.retweet_count.toString() || '', inline: true }
+        );
 
-    message.reply({
-      embeds: [messageEmbed],
-      allowedMentions: {
-        repliedUser: false,
-      },
-    });
-  } catch (error) {
-    console.error(error);
+      const photos = tweet.includes?.media?.filter(media => media.type === 'photo') as Photo[];
+        
+      if (typeof photos !== 'undefined' && photos.length > 0) {
+        messageEmbed.setImage(photos[0].url);
+      }
+
+      message.reply({
+        embeds: [messageEmbed],
+        allowedMentions: {
+          repliedUser: false,
+        },
+      });
+    } catch (error) {
+      console.error(error);
+    }
   }
 }
 
