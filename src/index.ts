@@ -1,5 +1,6 @@
 import { Client, Intents, Message, TextChannel, MessageEmbed } from 'discord.js';
 import { config } from 'dotenv';
+import pixivImage from './handlers/pixivImage';
 import sensitiveTwitter from './handlers/sensitiveTwitter';
 import { sniperInteraction, sniperStoreDelete, sniperStoreEdit, sniperStoreReactionRemove } from './handlers/sniper';
 
@@ -20,6 +21,7 @@ client.on('ready', () => {
 
 client.on('messageCreate', (message) => {
   sensitiveTwitter(client, message);
+  pixivImage(message);
 });
 
 client.on("messageDelete", async (message) => {

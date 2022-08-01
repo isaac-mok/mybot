@@ -14,6 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const discord_js_1 = require("discord.js");
 const dotenv_1 = require("dotenv");
+const pixivImage_1 = __importDefault(require("./handlers/pixivImage"));
 const sensitiveTwitter_1 = __importDefault(require("./handlers/sensitiveTwitter"));
 const sniper_1 = require("./handlers/sniper");
 (0, dotenv_1.config)();
@@ -30,6 +31,7 @@ client.on('ready', () => {
 });
 client.on('messageCreate', (message) => {
     (0, sensitiveTwitter_1.default)(client, message);
+    (0, pixivImage_1.default)(message);
 });
 client.on("messageDelete", (message) => __awaiter(void 0, void 0, void 0, function* () {
     (0, sniper_1.sniperStoreDelete)(message);
