@@ -1,7 +1,6 @@
 import { Client, Intents, Message, TextChannel, MessageEmbed } from 'discord.js';
 import { config } from 'dotenv';
 import pixivImage from './handlers/pixivImage';
-import sensitiveTwitter from './handlers/sensitiveTwitter';
 import { sniperInteraction, sniperStoreDelete, sniperStoreEdit, sniperStoreReactionRemove } from './handlers/sniper';
 
 config();
@@ -20,7 +19,6 @@ client.on('ready', () => {
 });
 
 client.on('messageCreate', (message) => {
-  sensitiveTwitter(client, message);
   pixivImage(message);
 });
 
@@ -48,10 +46,4 @@ start();
 
 async function start() {
   await client.login(token);
-  
-  // uuidNickname();
-  // setInterval(uuidNickname, 3600000);
-
-  // nukecodeNickname();
-  // setInterval(nukecodeNickname, 600000);
 }
