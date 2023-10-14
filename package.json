@@ -2,12 +2,10 @@
   "name": "mybot",
   "version": "1.0.0",
   "description": "Discord bot with miscellaneous functions.",
-  "main": "dist/index.js",
+  "main": "src/index.ts",
   "scripts": {
-    "start": "node ./dist/index.js",
-    "dev": "tsc && npm run start",
-    "build": "tsc",
-    "watch": "tsc --watch",
+    "start": "bun ./src/index.ts",
+    "dev": "bun --watch ./src/index.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
@@ -18,8 +16,8 @@
   "license": "UNLICENSED",
   "devDependencies": {
     "@types/jsdom": "^20.0.0",
-    "@types/node": "^16.11.47",
-    "typescript": "^4.7.4"
+    "@types/node": "^20.8.6",
+    "typescript": "^5.0.0"
   },
   "dependencies": {
     "@discordjs/rest": "^0.4.1",
@@ -28,8 +26,7 @@
     "discord.js": "^13.9.2",
     "dotenv": "^16.0.1",
     "jsdom": "^20.0.0",
-    "short-uuid": "^4.2.0",
-    "twitter-api-sdk": "^1.1.0"
+    "short-uuid": "^4.2.0"
   },
   "engines": {
     "node": "16.x"
