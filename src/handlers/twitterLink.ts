@@ -8,15 +8,17 @@ export default async function twitterLink(message: Message<boolean>) {
 
   if (!(channel instanceof TextChannel)) return
 
-  // Check if message has pixiv link and get it
-  if (message.content.match(/https:\/\/(twitter|x).com/ig) !== null) setTimeout(embedIfNone, 3000);
+  // Check if message has twitter link and get it
+  if (message.content.match(/https:\/\/(twitter|x).com/ig) !== null) setTimeout(replaceIfNone, 3000)
 
-  async function embedIfNone() {
+  async function replaceIfNone() {
     try {
       message = await message.fetch()
       if (message.embeds.length === 0) {
-        if (message.content.match(/https:\/\/(twitter|x).com/ig) !== null) {
-          const newMessage = message.content.replaceAll(/https:\/\/(twitter|x).com/ig, 'https://fxtwitter.com');
+        const matches = message.content.match(/https:\/\/(twitter|x)\.com[\w\d\/\-?=]+/ig);
+        if (matches !== null && matches.length > 0) {
+          const links = matches.map(match => match.replaceAll(/https:\/\/(twitter|x).com/ig, 'https://fxtwitter.com'))
+          const newMessage = links.join("\n");
   
           await message.reply({
             content: newMessage,
