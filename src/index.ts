@@ -1,8 +1,8 @@
 import { Client, Intents } from 'discord.js';
 import { config } from 'dotenv';
-import pixivImage from './handlers/pixivImage';
 import { sniperInteraction, sniperStoreDelete, sniperStoreEdit, sniperStoreReactionRemove } from './handlers/sniper';
 import twitterLink from './handlers/twitterLink';
+import pixivLink from './handlers/pixivLink';
 
 config();
 
@@ -20,7 +20,7 @@ client.on('ready', () => {
 });
 
 client.on('messageCreate', (message) => {
-  pixivImage(message);
+  pixivLink(message);
   twitterLink(message);
 });
 
