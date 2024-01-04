@@ -3,6 +3,7 @@ import { config } from 'dotenv';
 import { sniperInteraction, sniperStoreDelete, sniperStoreEdit, sniperStoreReactionRemove } from './handlers/sniper';
 import twitterLink from './handlers/twitterLink';
 import pixivLink from './handlers/pixivLink';
+import redditLink from './handlers/redditLink';
 
 config();
 
@@ -22,6 +23,7 @@ client.on('ready', () => {
 client.on('messageCreate', (message) => {
   pixivLink(message);
   twitterLink(message);
+  redditLink(message);
 });
 
 client.on("messageDelete", async (message) => {
