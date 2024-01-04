@@ -9,13 +9,13 @@ export default async function redditLink(message: Message<boolean>) {
   if (!(channel instanceof TextChannel)) return
 
   // Check if message has twitter link and get it
-  if (message.content.match(/https:\/\/reddit.com/ig) !== null) setTimeout(replaceIfNone, 3000)
+  if (message.content.match(/https:\/\/www.reddit.com/ig) !== null) replace()
 
-  async function replaceIfNone() {
+  async function replace() {
     try {
-      const matches = message.content.match(/https:\/\/reddit\.com[\w\d\/\-?=]+/ig);
+      const matches = message.content.match(/https:\/\/www.reddit\.com[\w\d\/\-?=]+/ig);
       if (matches !== null && matches.length > 0) {
-        const links = matches.map(match => match.replaceAll(/https:\/\/reddit.com/ig, 'https://rxddit.com'))
+        const links = matches.map(match => match.replaceAll(/https:\/\/www.reddit.com/ig, 'https://rxddit.com'))
         const newMessage = links.join("\n");
 
         await message.reply({
