@@ -15,17 +15,17 @@
   "author": "Isaac Mok <isaac.mok.kx@gmail.com>",
   "license": "UNLICENSED",
   "devDependencies": {
-    "@types/jsdom": "^20.0.0",
+    "@types/jsdom": "^21.1.6",
     "@types/node": "^20.8.6",
     "typescript": "^5.0.0"
   },
   "dependencies": {
-    "@discordjs/rest": "^0.4.1",
+    "@discordjs/rest": "^2.0.0",
     "axios": "^1.6.8",
-    "discord-api-types": "^0.33.5",
-    "discord.js": "^13.9.2",
+    "discord-api-types": "^0.37.75",
+    "discord.js": "^14.12.1",
     "dotenv": "^16.0.1",
-    "jsdom": "^20.0.0",
+    "jsdom": "^24.0.0",
     "short-uuid": "^4.2.0"
   },
   "engines": {

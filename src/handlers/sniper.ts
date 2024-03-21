@@ -4,7 +4,7 @@
  * Modified by adding by user snipes
  */
 
-import { CacheType, Client, GuildEmoji, Interaction, Message, MessageEmbed, MessageReaction, PartialMessage, PartialMessageReaction, PartialUser, ReactionEmoji, TextBasedChannel, TextChannel, User } from "discord.js";
+import { CacheType, Client, EmbedBuilder, GuildEmoji, Interaction, Message, MessageReaction, PartialMessage, PartialMessageReaction, PartialUser, ReactionEmoji, TextChannel, User } from "discord.js";
 
 const snipes: Record<string, DeletedContent[]> = {};
 const snipesByUser: Record<string, DeletedContent[]> = {};
@@ -104,6 +104,7 @@ export async function sniperStoreReactionRemove(reaction: MessageReaction | Part
 export async function sniperInteraction(client: Client<boolean>, interaction: Interaction<CacheType>) {
   try {
 		if (!interaction.isCommand()) return;
+		if (interaction.isContextMenuCommand()) return;
 
 		const channel =
 			(interaction.options.getChannel("channel") || interaction.channel) as TextChannel;
@@ -124,7 +125,7 @@ export async function sniperInteraction(client: Client<boolean>, interaction: In
 
 			if (!snipe) return interaction.reply("There's nothing to snipe!");
 
-			const embed = new MessageEmbed()
+			const embed = new EmbedBuilder()
 				.setAuthor({
           name: snipe.author.tag,
           iconURL: snipe.author.avatarURL() || ''
@@ -149,7 +150,7 @@ export async function sniperInteraction(client: Client<boolean>, interaction: In
 				snipe
 					? {
 							embeds: [
-								new MessageEmbed()
+								new EmbedBuilder()
 									.setDescription(snipe.content)
 									.setAuthor({
                     name: snipe.author.tag,
@@ -175,7 +176,7 @@ export async function sniperInteraction(client: Client<boolean>, interaction: In
 				snipe
 					? {
 							embeds: [
-								new MessageEmbed()
+								new EmbedBuilder()
 									.setDescription(
 										`reacted with ${formatEmoji(
 											snipe.emoji
