@@ -1,6 +1,6 @@
 import { REST } from '@discordjs/rest';
 import { config } from 'dotenv';
-import { RESTPostAPIApplicationCommandsJSONBody, Routes, ApplicationCommandType } from 'discord-api-types/v10';
+import { RESTPostAPIApplicationCommandsJSONBody, Routes, ApplicationCommandType, ApplicationCommandOptionType } from 'discord-api-types/v10';
 
 config();
 
@@ -21,6 +21,13 @@ const commands: RESTPostAPIApplicationCommandsJSONBody[] = [
 				name: "channel",
 				description: "The channel to snipe",
 			},
+			{
+				type: ApplicationCommandOptionType.Integer,
+				name: "history",
+				description: "How far back in history (0 = latest, max: 4)",
+				max_value: 4,
+				min_value: 0,
+			},
 		],
 	},
 	{
@@ -36,6 +43,13 @@ const commands: RESTPostAPIApplicationCommandsJSONBody[] = [
 				type: 7, // text channel
 				name: "channel",
 				description: "The channel to snipe",
+			},
+			{
+				type: ApplicationCommandOptionType.Integer,
+				name: "history",
+				description: "How far back in history (0 = latest, max: 4)",
+				max_value: 4,
+				min_value: 0,
 			},
 		],
 	},
@@ -53,6 +67,13 @@ const commands: RESTPostAPIApplicationCommandsJSONBody[] = [
 				type: 7, // text channel
 				name: "channel",
 				description: "The channel to snipe",
+			},
+			{
+				type: ApplicationCommandOptionType.Integer,
+				name: "history",
+				description: "How far back in history (0 = latest, max: 4)",
+				max_value: 4,
+				min_value: 0,
 			},
 		],
 	},

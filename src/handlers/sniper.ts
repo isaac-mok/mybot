@@ -6,12 +6,13 @@
 
 import { CacheType, Client, GuildEmoji, Interaction, Message, MessageEmbed, MessageReaction, PartialMessage, PartialMessageReaction, PartialUser, ReactionEmoji, TextBasedChannel, TextChannel, User } from "discord.js";
 
-const snipes: Record<string, DeletedContent> = {};
-const snipesByUser: Record<string, DeletedContent> = {};
-const editSnipes: Record<string, EditedContent> = {};
-const editSnipesByUser: Record<string, EditedContent> = {};
-const reactionSnipes: Record<string, ReactionRemovedContent> = {};
-const reactionSnipesByUser: Record<string, ReactionRemovedContent> = {};
+const snipes: Record<string, DeletedContent[]> = {};
+const snipesByUser: Record<string, DeletedContent[]> = {};
+const editSnipes: Record<string, EditedContent[]> = {};
+const editSnipesByUser: Record<string, EditedContent[]> = {};
+const reactionSnipes: Record<string, ReactionRemovedContent[]> = {};
+const reactionSnipesByUser: Record<string, ReactionRemovedContent[]> = {};
+const maxArrayLength = 5;
 
 const formatEmoji = (emoji: GuildEmoji | ReactionEmoji) => {
 	return !emoji.id || (emoji instanceof GuildEmoji ? emoji.available : false)
@@ -33,9 +34,19 @@ export function sniperStoreDelete(message: Message<boolean> | PartialMessage) {
 			: null,
 	};
 
-	snipes[message.channel.id] = content;
+	if (snipes[message.channel.id] === undefined) {
+		snipes[message.channel.id] = [];
+	} else if (snipes[message.channel.id].length >= maxArrayLength) {
+		snipes[message.channel.id].pop();
+	}
+	snipes[message.channel.id].unshift(content);
 
-	snipesByUser[message.author.id] = content;
+	if (snipesByUser[message.author.id] === undefined) {
+		snipesByUser[message.author.id] = [];
+	} else if (snipesByUser[message.author.id].length >= maxArrayLength) {
+		snipesByUser[message.author.id].pop();
+	}
+	snipesByUser[message.author.id].unshift(content);
 }
 
 export function sniperStoreEdit(oldMessage: Message<boolean> | PartialMessage, newMessage: Message<boolean> | PartialMessage) {
@@ -47,9 +58,19 @@ export function sniperStoreEdit(oldMessage: Message<boolean> | PartialMessage, n
 		createdAt: newMessage.editedTimestamp,
 	};
 
-	editSnipes[oldMessage.channel.id] = content;
+	if (editSnipes[oldMessage.channel.id] === undefined) {
+		editSnipes[oldMessage.channel.id] = [];
+	} else if (editSnipes[oldMessage.channel.id].length >= maxArrayLength) {
+		editSnipes[oldMessage.channel.id].pop();
+	}
+	editSnipes[oldMessage.channel.id].unshift(content);
 
-	editSnipesByUser[oldMessage.author.id] = content;
+	if (editSnipesByUser[oldMessage.author.id] === undefined) {
+		editSnipesByUser[oldMessage.author.id] = [];
+	} else if (editSnipesByUser[oldMessage.author.id].length >= maxArrayLength) {
+		editSnipesByUser[oldMessage.author.id].pop();
+	}
+	editSnipesByUser[oldMessage.author.id].unshift(content);
 }
 
 export async function sniperStoreReactionRemove(reaction: MessageReaction | PartialMessageReaction, user: User | PartialUser) {
@@ -62,10 +83,22 @@ export async function sniperStoreReactionRemove(reaction: MessageReaction | Part
 		createdAt: Date.now(),
 	};
 
-	reactionSnipes[reaction.message.channel.id] = content;
+	if (reactionSnipes[reaction.message.channel.id] === undefined) {
+		reactionSnipes[reaction.message.channel.id] = [];
+	} else if (reactionSnipes[reaction.message.channel.id].length >= maxArrayLength) {
+		reactionSnipes[reaction.message.channel.id].pop();
+	}
+	reactionSnipes[reaction.message.channel.id].unshift(content);
 
   const author = reaction.message.author;
-  if (author !== null) reactionSnipesByUser[author.id] = content;
+  if (author !== null) {
+		if (reactionSnipesByUser[author.id] === undefined) {
+			reactionSnipesByUser[author.id] = [];
+		} else if (reactionSnipesByUser[author.id].length >= maxArrayLength) {
+			reactionSnipesByUser[author.id].pop();
+		}
+		reactionSnipesByUser[author.id].unshift(content);
+	}
 }
 
 export async function sniperInteraction(client: Client<boolean>, interaction: Interaction<CacheType>) {
@@ -79,12 +112,14 @@ export async function sniperInteraction(client: Client<boolean>, interaction: In
 		
 		const user = interaction.options.getUser("target") || null;
 
+		const history = interaction.options.getInteger("history") || 0;
+
 		if (interaction.commandName === "snipe") {
 			let snipe;
 			if (user !== null) {
-				snipe = snipesByUser[user.id];
+				snipe = snipesByUser[user.id]?.[history];
 			} else {
-        if (channel !== null) snipe = snipes[channel.id];
+        if (channel !== null) snipe = snipes[channel.id]?.[history];
 			}
 
 			if (!snipe) return interaction.reply("There's nothing to snipe!");
@@ -105,9 +140,9 @@ export async function sniperInteraction(client: Client<boolean>, interaction: In
 		} else if (interaction.commandName === "editsnipe") {
 			let snipe;
 			if (user !== null) {
-				snipe = editSnipesByUser[user.id];
+				snipe = editSnipesByUser[user.id]?.[history];
 			} else {
-				snipe = editSnipes[channel.id];
+				snipe = editSnipes[channel.id]?.[history];
 			}
 
 			await interaction.reply(
@@ -131,9 +166,9 @@ export async function sniperInteraction(client: Client<boolean>, interaction: In
 		} else if (interaction.commandName === "reactionsnipe") {
 			let snipe;
 			if (user !== null) {
-				snipe = reactionSnipesByUser[user.id];
+				snipe = reactionSnipesByUser[user.id]?.[history];
 			} else {
-				snipe = reactionSnipes[channel.id];
+				snipe = reactionSnipes[channel.id]?.[history];
 			}
 
 			await interaction.reply(
