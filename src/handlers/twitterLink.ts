@@ -14,7 +14,7 @@ export default async function twitterLink(message: Message<boolean>) {
   async function replaceIfNone() {
     try {
       message = await message.fetch()
-      if (message.embeds.length === 0) {
+      if (message.embeds.length === 0 || (message.embeds[0].image === null && message.embeds[0].description === null)) {
         const matches = message.content.match(/https:\/\/(twitter|x)\.com[\w\d\/\-?=]+/ig);
         if (matches !== null && matches.length > 0) {
           const links = matches.map(match => match.replaceAll(/https:\/\/(twitter|x).com/ig, 'https://fxtwitter.com'))
